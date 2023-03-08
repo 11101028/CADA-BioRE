@@ -107,7 +107,7 @@ class Trainer(object):
         
         animator = d2l.Animator(xlabel='epoch', xlim=[0, args.epochs], ylim=[0, 1], fmts=('k-', 'r--', 'y-.', 'm:', 'g--', 'b-.', 'c:'),
                                 legend=[f'train loss/{args.loss_show_rate}', 'train_p', 'train_r', 'train_f1', 'val_p', 'val_r', 'val_f1'])
-        # 统计指标
+
         metric = d2l.Accumulator(5)
         num_batches = len(train_dataloader)
         
@@ -161,8 +161,6 @@ class Trainer(object):
                         elif args.save_metric == 'epoch':
                             save_metric = epoch
                         elif args.save_metric == 'loss':
-                            # e的700次方刚好大于0，不存在数值问题
-                            # 除以10，避免loss太大，exp(-loss)次方由于数值问题会小于0，导致存不上，最大可以处理7000的loss
                             save_metric = math.exp(- loss / 10) # math.exp(- metric[0] / metric[-1] / 10)
                         elif args.save_metric == 'p':
                             save_metric = val_p
@@ -193,9 +191,7 @@ class Trainer(object):
         logger.info(f"\n***** {args.finetuned_model_name} model training stop *****" )
         logger.info(f'finished time: {get_time()}')
         logger.info(f"best val_{args.save_metric}: {best_score}, best step: {best_step}\n" )
-        # 这句会报oom的错误
-#         if args.device.__str__() != 'cpu':
-#             torch.cuda.empty_cache()
+
 
         return global_step, best_step
 
@@ -207,7 +203,7 @@ class Trainer(object):
         
         if args.distributed:
             model=model.module
-        # 防止91存到3卡，但是82没有3卡的情况
+
         model = model.to(torch.device('cpu'))
         torch.save(model.state_dict(), os.path.join(self.output_dir, 'pytorch_model.pt'))
         self.logger.info('Saving models checkpoint to %s', self.output_dir)
@@ -221,7 +217,6 @@ class Trainer(object):
         args = self.args
         load_dir = os.path.join(args.output_dir, args.model_version)
         self.logger.info(f'load model from {load_dir}')
-        # 每次加载到cpu中，防止爆显存
         checkpoint = torch.load(os.path.join(load_dir, 'pytorch_model.pt'), map_location=torch.device('cpu'))
         if 'module' in list(checkpoint.keys())[0].split('.'):
             self.model = nn.DataParallel(self.model, device_ids=args.devices).to(args.device)
@@ -301,7 +296,6 @@ class GPERTrainer(Trainer):
         predict_data = []
         gold_data = []
         for step, data in enumerate(test_samples):
-            # 加入黄金数据
             for (gold_sub, gold_obj) in data['entity_list']:
                 gold_data.append((step,gold_sub,0))
                 gold_data.append((step,gold_obj,1))
@@ -472,11 +466,11 @@ class GPERTrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'entity_list_'+args.dev_name.split('.')[0]+'.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
-            # 第0类数据的预测结果
+            # the preduct result of class 0
             predict_data0 = self._get_predict_entity_list(test_samples)
             for data in predict_data0:
                 f.write(data)
@@ -498,11 +492,11 @@ class GPERTrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'entity_list_'+args.dev_name.split('.')[0]+'.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
-            # 第0类数据的预测结果
+            # the preduct result of class 0
             predict_data0 = self._get_predict_entity_list(test_samples)
             for data in predict_data0:
                 f.write(data)
@@ -601,7 +595,7 @@ class RETrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'CMeIE_test.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
@@ -652,7 +646,7 @@ class RETrainer(Trainer):
                         tmp['object_type'] = {'@value': self.data_processor.pre_sub_obj[spo['predicate']][1]}
                         new_spo_list.append(tmp)
 
-                new_spo_list2 = []  # 去重
+                new_spo_list2 = []  # delete duplicate data
                 for s in new_spo_list:
                     if s not in new_spo_list2:
                         new_spo_list2.append(s)
@@ -679,7 +673,7 @@ class RETrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'CMeIE_'+args.dev_name.split('.')[0]+'.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
@@ -730,7 +724,7 @@ class RETrainer(Trainer):
                         tmp['object_type'] = {'@value': self.data_processor.pre_sub_obj[spo['predicate']][1]}
                         new_spo_list.append(tmp)
 
-                new_spo_list2 = []  # 去重
+                new_spo_list2 = []  # delete duplicate data
                 for s in new_spo_list:
                     if s not in new_spo_list2:
                         new_spo_list2.append(s)
@@ -758,7 +752,7 @@ class RETrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'CMeIE_'+args.dev_name.split('.')[0]+'.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
@@ -809,7 +803,7 @@ class RETrainer(Trainer):
                         tmp['object_type'] = {'@value': self.data_processor.pre_sub_obj[spo['predicate']][1]}
                         new_spo_list.append(tmp)
 
-                new_spo_list2 = []  # 去重
+                new_spo_list2 = []  # delete duplicate data
                 for s in new_spo_list:
                     if s not in new_spo_list2:
                         new_spo_list2.append(s)
@@ -882,15 +876,15 @@ class P2SOTrainer(Trainer):
                 gold_data_2.append((step,obj,1))
             if isPbar:
                 pbar(step)
-            # 构造p2so数据
+            # build p2so data
             samples = self.data_processor.build_data(data, mode='dev')
             new_instance = {'text':text, 'spo_list':[]}
             p2so_dic = defaultdict(set)
             for sample in samples:
                 _, p, so_list = sample.values()
                 p2so_dic[p] = set(so_list)
-            # 根据p，构造prefix并预测
-            # 计算offset mapping，因为后续不考虑prefix，所以不用加入prefix
+            # according to p build prefix and predict 
+            # calculate offset mapping，Since prefix is not considered in the follow-up, it is unnecessary to add it
             token2char_span_mapping = self.tokenizer(text, return_offsets_mapping=True, max_length=args.max_length, truncation=True)["offset_mapping"]
             new_span = []
             for i in token2char_span_mapping:
@@ -906,7 +900,7 @@ class P2SOTrainer(Trainer):
                     _, p, so_list = sample.values()
                     predicate, obj_type, subject_type = p.split('|')
                     prefix = self.get_prefix(p)
-                    # roberta会在两句句子中间以</s><s>分隔，与bert不同，需要区分,bert为<sep>
+                    # roberta is separated between two sentences by </s><s>, which is different from bert, which is <sep>.
                     prefix_encode_len = len(self.tokenizer(prefix)['input_ids'])-1
 
                     encoder_txt = self.tokenizer.encode_plus(prefix,text, max_length=args.max_length, truncation=True)
@@ -916,7 +910,7 @@ class P2SOTrainer(Trainer):
                     score = model(input_ids, token_type_ids,attention_mask)
                     outputs = torch.sigmoid(score[0].data).cpu().numpy()
                     subjects, objects = set(), set()
-                    # 去除prefix
+                    # delete prefix
                     outputs = outputs[:,prefix_encode_len:,prefix_encode_len:]
                     outputs[:, [0, -1]] -= np.inf
                     outputs[:, :, [0, -1]] -= np.inf
@@ -1018,15 +1012,15 @@ class P2SOTrainer(Trainer):
             text = data['text']
             if isPbar:
                 pbar(step)
-            # 构造p2so数据
+            # build p2so data
             samples = self.data_processor.build_data(data, mode='test')
             new_instance = {'text':text, 'spo_list':[]}
             p2so_dic = defaultdict(set)
             for sample in samples:
                 _, p, so_list = sample.values()
                 p2so_dic[p] = set(so_list)
-            # 根据p，构造prefix并预测
-            # 计算offset mapping，因为后续不考虑prefix，所以不用加入prefix
+            # according to p build prefix and predict 
+            # calculate offset mapping，Since prefix is not considered in the follow-up, it is unnecessary to add it
             token2char_span_mapping = self.tokenizer(text, return_offsets_mapping=True, max_length=args.max_length, truncation=True)["offset_mapping"]
             new_span = []
             for i in token2char_span_mapping:
@@ -1052,7 +1046,7 @@ class P2SOTrainer(Trainer):
                     score = model(input_ids, token_type_ids,attention_mask)
                     outputs = torch.sigmoid(score[0].data).cpu().numpy()
                     subjects, objects = set(), set()
-                    # 去除prefix
+                    # delete prefix
                     outputs = outputs[:,prefix_encode_len:,prefix_encode_len:]
                     outputs[:, [0, -1]] -= np.inf
                     outputs[:, :, [0, -1]] -= np.inf
@@ -1076,7 +1070,7 @@ class P2SOTrainer(Trainer):
                     for sub, obj, prob in so_list:
                         if (sub not in sub_list or obj not in obj_list) and prob < args.dual_threshold:
                             p2so_dic[p] -= set([(sub, obj, prob)])
-            # 判断并得到结果
+            # judge and get results
             for index, spo in enumerate(data['spo_list']):
                 predicate = spo['predicate']
                 sub_type = spo['subject_type']
@@ -1085,7 +1079,7 @@ class P2SOTrainer(Trainer):
                 prob = spo['prob']
                 p = predicate + '|' + obj_type+ '|' + sub_type
                 
-                # 符合对偶验证和规则的spo才加入放入预测结果中
+                # spo that meet the dual verification and rules are added to the prediction results
                 if (sub, obj, prob) in p2so_dic[p] and self.data_processor.regular(spo) :
                     del spo['prob']
                     new_instance['spo_list'].append(spo)
@@ -1104,11 +1098,11 @@ class P2SOTrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'CMeIE_test.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
-            # 第0类数据的预测结果
+            # prediction results for class 0 data
             predict_data0 = self._get_predict_entity_list(test_samples)
             for data in predict_data0:
                 f.write(data)
@@ -1146,11 +1140,11 @@ class P2SOTrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'CMeIE_'+args.dev_name.split('.')[0]+'.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
-            # 第0类数据的预测结果
+            # Prediction results for class 0 data
             predict_data0 = self._get_predict_entity_list(test_samples)
             for data in predict_data0:
                 f.write(data)
@@ -1185,11 +1179,11 @@ class P2SOTrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'CMeIE_'+args.dev_name.split('.')[0]+'.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
-            # 第0类数据的预测结果
+            # Prediction results for class 0 data
             predict_data0 = self._get_predict_entity_list(test_samples)
             for data in predict_data0:
                 f.write(data)
@@ -1220,7 +1214,7 @@ class P2SOTrainer(Trainer):
         print('gold_path:{}'.format(gold_path))
         print('ori_path:{}'.format(ori_path))
         print('out_path:{}'.format(out_path))
-        # 获取黄金数据
+        # obtain gold data
         all_gold_jsons=[]
         with open(gold_path, 'r') as f_1:
             lines = f_1.readlines()
@@ -1233,7 +1227,7 @@ class P2SOTrainer(Trainer):
             for spo in spo_list:
                 gold_spos.append((i,spo['predicate'],spo['subject'],spo['object']['@value']))
 
-        #获取初始预测数据
+        # get the initial forecast data
         all_ori_jsons=[]
         with open(ori_path, 'r') as f_2:
             lines = f_2.readlines()
@@ -1248,10 +1242,10 @@ class P2SOTrainer(Trainer):
         P = len(set(ori_spos) & set(gold_spos)) / len(set(ori_spos))
         R = len(set(ori_spos) & set(gold_spos)) / len(set(gold_spos))
         F = (2 * P * R) / (P + R)
-        print('初始预测结果\n')
+        print('Initial prediction result\n')
         print('PRE:{}\tREC:{}\tF1:{}'.format(P,R,F))
 
-        #获取P2SO后预测数据
+        # Obtain forecast data after P2SO
         all_predict_jsons=[]
         with open(out_path, 'r') as f_2:
             lines = f_2.readlines()
@@ -1264,11 +1258,11 @@ class P2SOTrainer(Trainer):
             for spo in spo_list:
                 predict_spos.append((i,spo['predicate'],spo['subject'],spo['object']['@value']))
 
-        # 计算pre,rec,f1
+        # calculate pre,rec,f1
         P = len(set(predict_spos) & set(gold_spos)) / len(set(predict_spos))
         R = len(set(predict_spos) & set(gold_spos)) / len(set(gold_spos))
         F = (2 * P * R) / (P + R)
-        print('初始P2SO后结果\n')
+        print('the result of after initial P2SO\n')
         print('PRE:{}\tREC:{}\tF1:{}'.format(P,R,F))
 
 
