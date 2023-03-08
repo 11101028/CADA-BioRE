@@ -67,7 +67,7 @@ class P2SOModel(nn.Module):
         mention_outputs = self.mention_detect(outputs, batch_mask_ids)
         return mention_outputs
 
-# BIBM论文方法
+
 class GPERModel(nn.Module):
     def __init__(self, encoder_class, args):
         super(GPERModel, self).__init__()
@@ -87,7 +87,7 @@ class RawGlobalPointer(nn.Module):
     def __init__(self, hiddensize, ent_type_size, inner_dim, RoPE=True, tril_mask=True, do_rdrop=False, dropout=0):
         '''
         :param encoder: BERT
-        :param ent_type_size: 实体数目
+        :param ent_type_size:
         :param inner_dim: 64
         '''
         super().__init__()
@@ -141,7 +141,7 @@ class RawGlobalPointer(nn.Module):
         # padding mask
         pad_mask = attention_mask.unsqueeze(1).unsqueeze(1).expand(batch_size, self.ent_type_size, seq_len, seq_len)
         logits = logits * pad_mask - (1 - pad_mask) * 1e12
-        # 排除下三角
+        # Eliminate the lower triangle
         if self.trail_mask:
             mask = torch.tril(torch.ones_like(logits), -1)
             logits = logits - mask * 1e12
