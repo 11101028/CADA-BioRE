@@ -43,8 +43,9 @@ class GPERDataProcessor(object):
 
     
     def search(self, sequence, pattern):
-        """从sequence中寻找子串pattern
-        如果找到，返回第一个下标；否则返回0。
+        """
+        Find the substring pattern from the sequence
+        If found, returns the first index; Otherwise return 0.
         """
         n = len(pattern)
         for i in range(len(sequence)):
@@ -67,7 +68,7 @@ class GPERDataProcessor(object):
                 spo_list = line['spo_list']
                 for _ in range(iter_num):
                     new_data.append({
-                        "type": 0, # 抽主体
+                        "type": 0, 
                         "text": text,
                         "entity_list":[(spo["subject"], spo["object"]["@value"]) for spo in spo_list]
                     })
@@ -173,7 +174,7 @@ class REDataProcessor(object):
                 pre_sub_obj[data['predicate'] + '|' + data['object_type']] = [data['subject_type'], data['object_type']]
 
             s_entity_type = {}
-            for i, e in enumerate(s_entity):  # 主语
+            for i, e in enumerate(s_entity):  
                 s_entity_type[e] = ('<s>', '</s>')  # unused4 unused5
 
             o_entity_type = {}
@@ -190,8 +191,9 @@ class REDataProcessor(object):
             self.o_entity_type = o_entity_type
 
     def search(self, sequence, pattern):
-        """从sequence中寻找子串pattern
-        如果找到，返回第一个下标；否则返回0。
+        """
+        Find the substring pattern from the sequence
+        If found, returns the first index; Otherwise return 0.
         """
         n = len(pattern)
         for i in range(len(sequence)):
@@ -209,7 +211,7 @@ class REDataProcessor(object):
                     continue
                 sub_flag = ['<s>', '</s>']
                 obj_flag = ['<o>', '</o>']
-                sub_start = self.search(text, sub)  # sub在text的起点
+                sub_start = self.search(text, sub)  
                 sub_end = sub_start + len(sub)
                 text2 = text[:sub_start] + sub_flag[0] + sub + sub_flag[1] + text[sub_end:]
                 obj_start = self.search(text2, obj)
@@ -260,8 +262,9 @@ class P2SODataProcessor(object):
         return data_1
     
     def search(self, sequence, pattern):
-        """从sequence中寻找子串pattern
-        如果找到，返回第一个下标；否则返回0。
+        """
+        Find the substring pattern from the sequence
+        If found, returns the first index; Otherwise return 0.
         """
         n = len(pattern)
         for i in range(len(sequence)):
@@ -330,22 +333,22 @@ class P2SODataProcessor(object):
         start_end_tuple_list = []
         for i, start_id in enumerate(start_ids):
             if start_id == 0:
-                continue  # 不是起点
-            if end_ids[i] == 1:  # 起点和终点重合
+                continue  # Not the starting point
+            if end_ids[i] == 1:  # The starting point and the ending point coincide
                 start_end_tuple_list.append((i, i))
                 continue
             j = i + 1
             find_end_tag = False
             while j < len(end_ids):
                 if start_ids[j] == 1:
-                    break  # 终点前遇到新的起点，停止搜索
+                    break  # Meet a new beginning before the end. Stop searching
                 if end_ids[j] == 1:
                     start_end_tuple_list.append((i, j))
                     find_end_tag = True
                     break
                 else:
                     j += 1
-            if not find_end_tag:  # 没找到终点->孤立点
+            if not find_end_tag:  # don't find the end->isolated point
                 start_end_tuple_list.append((i, i))
         return start_end_tuple_list
 
@@ -353,10 +356,10 @@ class P2SODataProcessor(object):
         arg_tuple = self._extract_entity(start_logits, end_logits, text_start_id, text_end_id)
         one_role_args = []
         for k in arg_tuple:
-            # 感觉没有作用
+            # It doesn't seem to work
             if len(text_mapping) > 3:
                 # len(text_mapping) : token size
-                # k0: 起点    k1: 终点
+                # k0: starting point    k1: end point
                 start_split = text_mapping[k[0]]
                 end_split = text_mapping[k[1]]
                 if start_split != [] and end_split != []:
@@ -366,7 +369,7 @@ class P2SODataProcessor(object):
     
     def regular(self, spo):
         """
-        判断spo是否符合规则
+        Determine whether the spo complies with the rules
         return bool 
         """
         sub = spo['subject']
