@@ -139,12 +139,12 @@ class Trainer(object):
                                 (loss / args.loss_show_rate,0, 0, 0, 0, 0, 0))
                         if not os.path.exists(self.output_dir):
                             os.makedirs(self.output_dir)
-                        d2l.plt.savefig(os.path.join(self.output_dir, '训练过程.jpg'), dpi=300)
+                        d2l.plt.savefig(os.path.join(self.output_dir, 'training_process.jpg'), dpi=300)
                     else:
                         val_p, val_r, val_f1 = self.evaluate(model)
                         animator.add(
                             global_step / num_batches, 
-                            (# metric[0] / metric[-1] / args.loss_show_rate, # loss太大，除以loss_show_rate才能在[0,1]范围内看到
+                            (# metric[0] / metric[-1] / args.loss_show_rate, # loss is too large. Only by dividing loss_show_rate can you see it in the range of [0,1]
                              loss / args.loss_show_rate,
                              train_p,  # metric[1] / metric[-1],
                              train_r,  # metric[2] / metric[-1],
@@ -154,7 +154,7 @@ class Trainer(object):
                              val_f1))
                         if not os.path.exists(self.output_dir):
                             os.makedirs(self.output_dir)
-                        d2l.plt.savefig(os.path.join(self.output_dir, '训练过程.jpg'), dpi=300)
+                        d2l.plt.savefig(os.path.join(self.output_dir, 'training_process.jpg'), dpi=300)
 
                         if args.save_metric == 'step':
                             save_metric = global_step
@@ -441,11 +441,11 @@ class GPERTrainer(Trainer):
             os.makedirs(output_dir)
         output_dir = os.path.join(output_dir, 'entity_list.jsonl')
         if os.path.exists(output_dir):
-            print('已经预测过')
+            print('already predicted')
             return
         logger.info(f"***** write predict file to {output_dir} *****")
         with jsonlines.open(output_dir, mode='w') as f:
-            # 第0类数据的预测结果
+            # the preduct result of class 0
             predict_data0 = self._get_predict_entity_list(test_samples)
             for data in predict_data0:
                 f.write(data)
@@ -1036,7 +1036,7 @@ class P2SOTrainer(Trainer):
                     _, p, so_list = sample.values()
                     predicate, obj_type, subject_type = p.split('|')
                     prefix = self.get_prefix(p)
-                    # roberta会在两句句子中间以</s><s>分隔，与bert不同，需要区分,bert为<sep>
+                    # roberta is separated between two sentences by </s><s>, which is different from bert, which is <sep>.
                     prefix_encode_len = len(self.tokenizer(prefix)['input_ids'])-1
 
                     encoder_txt = self.tokenizer.encode_plus(prefix,text, max_length=args.max_length, truncation=True)
