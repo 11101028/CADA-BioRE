@@ -1,3 +1,3 @@
-This repository is the source code of paper: "A combined recall and rank framework with online negative sampling for Chinese procedure terminology normaliztion"
+This repository is the source code of paper: "A Co-adaptive Framework with Duality-aware for Biomedical Relation Extraction"
 
-## folders and files:
+### folders and files:
