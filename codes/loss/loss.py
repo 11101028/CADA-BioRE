@@ -1,16 +1,10 @@
 import torch
 import numpy as np
 
-# 科学空间：《将“softmax+交叉熵”推广到多标签分类问题》的torch版本
 # https://spaces.ac.cn/archives/7359
 def multilabel_categorical_crossentropy(y_pred, y_true):
-    """多标签分类的交叉熵
-    说明：y_true和y_pred的shape一致，y_true的元素非0即1，
-         1表示对应的类为目标类，0表示对应的类为非目标类。
-    警告：请保证y_pred的值域是全体实数，换言之一般情况下y_pred
-         不用加激活函数，尤其是不能加sigmoid或者softmax！预测
-         阶段则输出y_pred大于0的类。如有疑问，请仔细阅读并理解
-         本文。
+    """
+    Cross entropy of multi-label classification
     """
     y_pred = (1 - 2 * y_true) * y_pred
     y_pred_neg = y_pred - y_true * 1e12
@@ -24,7 +18,7 @@ def multilabel_categorical_crossentropy(y_pred, y_true):
 
 def sparse_multilabel_categorical_crossentropy(y_true=None, y_pred=None, mask_zero=False):
     '''
-    稀疏多标签交叉熵损失的torch实现
+    torch implementation of sparse multi-tag cross entropy loss
     '''
     shape = y_pred.shape
     y_true = y_true[..., 0] * shape[2] + y_true[..., 1]
