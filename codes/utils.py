@@ -11,7 +11,7 @@ import unicodedata
 
 def get_time(fmt='%Y-%m-%d %H:%M:%S'):
     """
-    获取当前时间
+    Get the current time
     """
     ts = time.time()
     ta = time.localtime(ts)
@@ -124,7 +124,7 @@ class TokenRematch:
 
     @staticmethod
     def stem(token):
-        """获取token的“词干”（如果是##开头，则自动去掉##）
+        """get the token's "stem" (automatically remove the ## if it starts with ##)
         """
         if token[:2] == '##':
             return token[2:]
@@ -133,18 +133,18 @@ class TokenRematch:
 
     @staticmethod
     def _is_control(ch):
-        """控制类字符判断
+        """control class character judgment
         """
         return unicodedata.category(ch) in ('Cc', 'Cf')
 
     @staticmethod
     def _is_special(ch):
-        """判断是不是有特殊含义的符号
+        """Determine if the symbol has a special meaning
         """
         return bool(ch) and (ch[0] == '[') and (ch[-1] == ']')
 
     def rematch(self, text, tokens):
-        """给出原始的text和tokenize后的tokens的映射关系
+        """give the mapping between the original text and tokens after tokenize
         """
         if self._do_lower_case:
             text = text.lower()
@@ -170,7 +170,7 @@ class TokenRematch:
                 start = text[offset:].index(token) + offset
                 end = start + len(token)
                 token_mapping.append(char_mapping[start:end])
-                # offset的作用是避免文本中有重复字符
+                # The effect of offset is to avoid duplicate characters in the text
                 offset = end
 
         return token_mapping
