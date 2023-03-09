@@ -3,7 +3,6 @@ import json
 import jsonlines
 from collections import defaultdict
 import random
-from constant import spot_labels, spot_prompt, asoc_prompt
 
 class GPERDataProcessor(object):
     def __init__(self, args):
