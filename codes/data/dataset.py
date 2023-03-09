@@ -2,7 +2,6 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
-from constant import text_start, left_bracket, right_bracket
 
 
 class GPERDataset(Dataset):
