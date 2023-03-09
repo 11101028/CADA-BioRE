@@ -16,4 +16,5 @@ CADA-BioRE（A Co-adaptive Framework with Duality-aware for Biomedical Relation 
 `/run_sh` contains the script which runs the code in `/code_main`
 
 ### Train
-~~~./run_sh/run.sh
+~~~
+./run_sh/run.sh
