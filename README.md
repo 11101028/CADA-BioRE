@@ -9,4 +9,6 @@ CADA-BioRE（A Co-adaptive Framework with Duality-aware for Biomedical Relation 
 
 `/result_output` is used to store model prediction result.
 
+`/code_main` contains three methods' main code in BioRE
+
 
