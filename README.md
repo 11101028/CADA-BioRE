@@ -9,8 +9,10 @@ CADA-BioRE（A Co-adaptive Framework with Duality-aware for Biomedical Relation 
 
 `/code_main` contains three methods' main code in BioRE
 
-`/code` contains the auxiliary code required for the code in `/code_main`
+`/codes` contains the auxiliary code required for the code in `/code_main`
 
 `/result_output` is used to store model prediction result.
+
+`/run_sh` c
 
 
