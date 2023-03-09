@@ -13,6 +13,4 @@ CADA-BioRE（A Co-adaptive Framework with Duality-aware for Biomedical Relation 
 
 `/result_output` is used to store model prediction result.
 
-`/run_sh` c
-
-
+`/run_sh` contains the script which runs the code in `/code_main`
