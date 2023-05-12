@@ -1,5 +1,5 @@
 # CADA-BioRE
-CADA-BioRE（A Co-adaptive Framework with Duality-aware for Biomedical Relation Extraction）
+CADA-BioRE（A co-adaptive duality-aware framework for biomedical relation extraction）
 ### folders and files:
 `/CMeIE` contains the CMeIE data file used in this paper, which could be downloaded from https://tianchi.aliyun.com/dataset/95414.
 
